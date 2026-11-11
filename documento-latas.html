@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Latas de muestra · Atlántica</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    @page { size: A4; margin: 0; }
+    body { background: #e9e4da; }
+    .page { width: 210mm; height: 297mm; overflow: hidden; margin: 10mm auto; background: var(--paper); padding: 18mm 18mm 14mm; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,.12); page-break-after: always; break-after: page; display: flex; flex-direction: column; }
+    .page:last-child { page-break-after: auto; break-after: auto; }
+    .brandline { text-align: center; border-bottom: 1px solid var(--line); padding-bottom: 6mm; margin-bottom: 8mm; }
+    .brandline .brand__name { font-size: 22pt; margin-right: -.32em; }
+    .cover { justify-content: center; text-align: center; }
+    .cover h1 { font-size: 34pt; margin: 4mm 0 3mm; }
+    .cover h1 em { color: var(--gold); font-style: italic; }
+    .cover .lead { margin: 0 auto; font-size: 11pt; }
+    .cover .tin { width: 88mm; margin: 8mm auto 6mm; transform: rotate(-6deg); filter: drop-shadow(0 10mm 8mm rgba(13,20,31,.3)); }
+    table.reg { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-top: 5mm; text-align: left; }
+    table.reg th { font-size: 7pt; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 500; padding: 2mm 0; border-bottom: 1px solid var(--gold); }
+    table.reg td { padding: 2.6mm 0; border-bottom: 1px solid var(--line); }
+    table.reg td.mono, .mono { font-family: "Courier New", monospace; }
+    .how { margin-top: 5mm; font-size: 9.5pt; color: var(--muted); text-align: left; }
+    .how b { color: var(--text); font-weight: 500; }
+    .can h2 { font-size: 30pt; }
+    .can .kicker { margin-bottom: 3mm; }
+    .views { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; margin: 8mm 0; }
+    .views figure { margin: 0; text-align: center; background: radial-gradient(circle at 50% 45%, #fffdf9, var(--cream) 75%); padding: 7mm 6mm 5mm; }
+    .views figcaption { font-size: 7pt; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); margin-top: 4mm; }
+    .views .tin { filter: drop-shadow(0 5mm 4mm rgba(13,20,31,.28)); }
+    .qrblock { display: grid; grid-template-columns: 68mm 1fr; gap: 9mm; align-items: center; border: 1px solid var(--line); background: #fff; padding: 7mm; }
+    .qrblock canvas { width: 68mm; height: 68mm; image-rendering: pixelated; }
+    .qrblock .code { font-size: 15pt; letter-spacing: .04em; }
+    .data { display: grid; grid-template-columns: 1fr 1fr; gap: 0 6mm; margin-top: 4mm; }
+    .data div { padding: 1.6mm 0; border-bottom: 1px solid var(--line); font-size: 9pt; }
+    .data small { display: block; font-size: 6.5pt; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+    .url { font-size: 8.5pt; color: var(--muted); margin-top: 3mm; word-break: break-all; }
+    .foot { margin-top: auto; padding-top: 6mm; font-size: 7.5pt; color: var(--muted); text-align: center; letter-spacing: .04em; }
+    .toolbar { text-align: center; padding: 8mm 0 0; }
+    @media print { body { background: none; } .page { margin: 0; box-shadow: none; } .toolbar { display: none; } }
+  </style>
+</head>
+<body>
+<div class="toolbar"><button class="btn btn--ink btn--sm" onclick="print()">Imprimir o guardar en PDF</button></div>
+<div id="doc"></div>
+
+<script src="qrcode.min.js"></script>
+<script src="shared.js"></script>
+<script>
+(() => {
+  // Permite fijar la dirección pública desde la URL: documento-latas.html?base=https://…/
+  const base = new URLSearchParams(location.search).get("base");
+  if (base) CONFIG.publicUrl = base;
+  const codes = Object.keys(CANS);
+  const url = AC.qrPayload("").replace(/#lata=$/, "");
+  const head = `<div class="brandline"><a class="brand" href="index.html"><span class="brand__name">ATLÁNTICA</span><span class="brand__sub">CONSERVAS · BURELA</span></a></div>`;
+  const foot = `<div class="foot">Empresa ficticia · Proyecto académico del Grupo 14 · UIE Campus A Coruña · Registro de demostración</div>`;
+
+  let html = `<section class="page cover">${head}
+    <span class="kicker kicker--center">Registro de demostración</span>
+    <h1>Las cinco latas de <em>muestra</em></h1>
+    <p class="lead">Una lata de cada referencia, tal y como llegaría a casa del cliente. Cada lata tiene su propio código y su propio QR grabado en la base.</p>
+    ${AC.tin(P.ventresca)}
+    <table class="reg"><thead><tr><th>Referencia</th><th>Código de la lata</th><th>Lote</th><th>Lata nº</th></tr></thead><tbody>
+      ${codes.map((c) => `<tr><td>${canProduct(c).name}</td><td class="mono">${c}</td><td class="mono">${CANS[c].lot}</td><td>${CANS[c].n}</td></tr>`).join("")}
+    </tbody></table>
+    <div class="how"><b>Cómo verificarlas:</b> escanea el QR con la cámara del móvil, o entra en la web, sección «Verifica tu lata», y escanéalo, sube una foto del QR o escribe el código.<div class="url">${AC.esc(url)}</div></div>
+    ${foot}</section>`;
+
+  html += codes.map((code, i) => {
+    const c = CANS[code], l = LOTS[c.lot], p = canProduct(code);
+    return `<section class="page can">${head}
+      <span class="kicker">Lata de muestra ${i + 1} de ${codes.length}</span>
+      <h2>${p.name}</h2>
+      <div class="views">
+        <figure>${AC.tin(p)}<figcaption>Tapa</figcaption></figure>
+        <figure>${AC.tinBack(code)}<figcaption>Base con el QR grabado</figcaption></figure>
+      </div>
+      <div class="qrblock">
+        <canvas data-big="${code}"></canvas>
+        <div>
+          <span class="kicker">Código de la lata</span>
+          <div class="code">${code}</div>
+          <div class="data">
+            <div><small>Lote</small>${c.lot}</div>
+            <div><small>Lata nº</small>${c.n} de ${l.cans}</div>
+            <div><small>Revisada</small>${c.inspected}</div>
+            <div><small>Puesto de empacado</small>${c.station}</div>
+            <div><small>Lonja</small>${l.lonja}</div>
+            <div><small>Consumo preferente</small>${l.best}</div>
+          </div>
+          <div class="url">${AC.esc(AC.qrPayload(code))}</div>
+        </div>
+      </div>
+      ${foot}</section>`;
+  }).join("");
+
+  document.getElementById("doc").innerHTML = html;
+  AC.paintQRs(document);
+  document.querySelectorAll("canvas[data-big]").forEach((cv) => AC.drawQR(cv, AC.qrPayload(cv.dataset.big), { scale: 8, margin: 2 }));
+})();
+</script>
+</body>
+</html>

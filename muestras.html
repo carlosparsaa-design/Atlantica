@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Latas de muestra · Atlántica</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .samples-hero { padding: 5rem 0 3rem; text-align: center; }
+    .samples-hero .lead { margin-inline: auto; }
+    .note { max-width: 640px; margin: 2.4rem auto 0; background: #fff; border: 1px solid var(--line); padding: 1.8rem 2rem; font-family: var(--serif); font-style: italic; font-size: 1.25rem; line-height: 1.45; color: var(--ink-3); transform: rotate(-.6deg); box-shadow: var(--shadow); }
+    .note small { display: block; font-family: var(--sans); font-style: normal; font-size: .66rem; letter-spacing: .24em; text-transform: uppercase; color: var(--gold); margin-top: 1rem; }
+    .samples { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 3rem 2.4rem; padding: 2rem 0 6rem; }
+    .sample { text-align: center; }
+    .flip { perspective: 1400px; cursor: pointer; padding: 1.4rem; background: radial-gradient(circle at 50% 45%, #fffdf9, var(--cream) 75%); }
+    .flip__inner { position: relative; transition: transform .9s cubic-bezier(.3,.7,.2,1); transform-style: preserve-3d; }
+    .flip.flipped .flip__inner { transform: rotateY(180deg); }
+    .flip__face { backface-visibility: hidden; -webkit-backface-visibility: hidden; filter: drop-shadow(0 22px 20px rgba(13,20,31,.3)); }
+    .flip__face--back { position: absolute; inset: 0; transform: rotateY(180deg); }
+    .sample h3 { font-size: 1.6rem; margin-top: 1.4rem; }
+    .sample .code { font-size: .95rem; margin: .3rem 0 1rem; }
+    .sample__actions { display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap; align-items: center; }
+    .bar { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+    .print-sheet { display: none; }
+    @media print {
+      body { background: #fff; }
+      .samples-hero, .samples, .bar, .note { display: none !important; }
+      .print-sheet { display: grid !important; grid-template-columns: 1fr 1fr; gap: 14mm; padding: 10mm; }
+      .print-sheet div { border: 1px solid #ccc; padding: 6mm; text-align: center; break-inside: avoid; font-family: "Courier New", monospace; }
+      .print-sheet canvas { width: 55mm; height: 55mm; margin: 0 auto 3mm; }
+      .print-sheet b { font-family: Georgia, serif; font-weight: normal; font-size: 14pt; display: block; }
+    }
+  </style>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap nav__inner">
+    <span></span>
+    <a href="index.html" class="brand"><span class="brand__name">ATLÁNTICA</span><span class="brand__sub">CONSERVAS · BURELA</span></a>
+    <div class="nav__links nav__links--right" style="display:flex"><a href="index.html#verifica" style="display:inline">Verificar una lata →</a></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="samples-hero">
+    <span class="kicker kicker--center">Demostración</span>
+    <h2>Tus latas han <em>llegado</em></h2>
+    <p class="lead">Estas son las cinco latas de muestra, una de cada referencia, tal y como llegarían a casa. Cada una tiene su propio código y su QR grabado en la base. Pulsa una lata para darle la vuelta.</p>
+    <div class="note">«Gracias por elegir Atlántica. Cada una de estas latas se revisó antes de cerrarla. Escanea su base y conocerás su historia.»<small>Tarjeta incluida en el estuche</small></div>
+    <div class="bar">
+      <button class="btn btn--ink btn--sm" id="flipAll">Ver todas por la base</button>
+      <button class="btn btn--line btn--sm" id="printAll">Imprimir los 5 QR</button>
+      <a class="btn btn--line btn--sm" href="latas-de-muestra.pdf" download>Descargar documento (PDF)</a>
+      <a class="btn btn--gold btn--sm" href="index.html#verifica">Ir a verificar</a>
+    </div>
+  </section>
+  <section class="samples" id="samples"></section>
+  <p class="fineprint" style="text-align:center;padding-bottom:3rem">Empresa ficticia · Proyecto académico del Grupo 14. Solo estas cinco latas existen en el registro de demostración.</p>
+</main>
+
+<div class="print-sheet" id="printSheet"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="qrcode.min.js"></script>
+<script src="shared.js"></script>
+<script>
+(() => {
+  const box = document.getElementById("samples");
+  const codes = Object.keys(CANS);
+  box.innerHTML = codes.map((code) => {
+    const p = canProduct(code);
+    return `<article class="sample">
+      <div class="flip" data-flip tabindex="0" role="button" aria-label="Girar la lata de ${AC.esc(p.name)}">
+        <div class="flip__inner">
+          <div class="flip__face">${AC.tin(p)}</div>
+          <div class="flip__face flip__face--back">${AC.tinBack(code)}</div>
+        </div>
+      </div>
+      <h3>${p.name}</h3>
+      <div class="code">${code}</div>
+      <div class="sample__actions">
+        <a class="btn btn--ink btn--sm" href="index.html#lata=${code}">Verificar esta lata</a>
+        <button class="link" data-png="${code}">Descargar QR</button>
+      </div>
+    </article>`;
+  }).join("");
+  AC.paintQRs(box);
+
+  box.addEventListener("click", (e) => {
+    const f = e.target.closest("[data-flip]"); if (f) f.classList.toggle("flipped");
+    const d = e.target.closest("[data-png]"); if (d) downloadPNG(d.dataset.png);
+  });
+  box.addEventListener("keydown", (e) => { const f = e.target.closest("[data-flip]"); if (f && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); f.classList.toggle("flipped"); } });
+  let all = false;
+  document.getElementById("flipAll").addEventListener("click", (e) => {
+    all = !all; document.querySelectorAll("[data-flip]").forEach((f) => f.classList.toggle("flipped", all));
+    e.target.textContent = all ? "Ver todas por la tapa" : "Ver todas por la base";
+  });
+
+  // PNG del QR (fondo blanco, con el código debajo) para subirlo en «Subir una foto del QR»
+  function downloadPNG(code) {
+    const qr = AC.drawQR(document.createElement("canvas"), AC.qrPayload(code), { scale: 10, margin: 4 });
+    const out = document.createElement("canvas"); out.width = qr.width; out.height = qr.height + 70;
+    const c = out.getContext("2d"); c.fillStyle = "#fff"; c.fillRect(0, 0, out.width, out.height); c.drawImage(qr, 0, 0);
+    c.fillStyle = "#1b2230"; c.font = "bold 26px Courier New, monospace"; c.textAlign = "center"; c.fillText(code, out.width / 2, qr.height + 30);
+    c.font = "18px Georgia, serif"; c.fillText(canProduct(code).name, out.width / 2, qr.height + 58);
+    const a = document.createElement("a"); a.href = out.toDataURL("image/png"); a.download = `QR-${code}.png`; a.click();
+    const t = document.getElementById("toast"); t.textContent = `Descargado el QR de ${code}`; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2500);
+  }
+
+  // Hoja para imprimir
+  const sheet = document.getElementById("printSheet");
+  sheet.innerHTML = codes.map((code) => `<div><canvas data-print="${code}"></canvas><b>${canProduct(code).name}</b>${code}</div>`).join("");
+  sheet.querySelectorAll("canvas[data-print]").forEach((cv) => AC.drawQR(cv, AC.qrPayload(cv.dataset.print), { scale: 8, margin: 3 }));
+  document.getElementById("printAll").addEventListener("click", () => print());
+})();
+</script>
+</body>
+</html>
